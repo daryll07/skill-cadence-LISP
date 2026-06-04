@@ -1,7 +1,8 @@
 ;pcb_checklist.il
 ;Master Checklist Wizard - Dashboard V26 (Ultra-Compact Horizontal Layout)
 
-axlCmdRegister("pcb_check" 'launch_pcb_checklist)
+axlCmdRegister("pcb_check" 'launch_pcb_designer)
+axlCmdRegister("pcb_qa"    'launch_pcb_checker)
 
 procedure( pcb_load_report_scripts()
   let((root)
@@ -172,27 +173,30 @@ procedure( pcb_fetch_var(target_var)
     ("DRC-1" "DRC-8" "Double check SMT component to Solder wave pins on solder side. Refer to section 4.5.4.3.1 of 920-000253-0000." comment nil nil)
 	("DRC-1" "DRC-9" "NO traces and via under optocoupler." comment nil nil)
 	
-	("DRC-2" "DRC-10" "Double check alignment and location of manually added soldermask openings." comment nil nil)
-	("DRC-2" "DRC-11" "Vias must not overlap with solder paste." comment nil nil)
-	("DRC-2" "DRC-12" "Double check and fix any bad pad entry." comment nil nil)
-    ("DRC-2" "DRC-13" "Always use standard thermal relief pattern." comment nil nil)
-    ("DRC-2" "DRC-14" "Add copper layer marking." comment nil nil)
-    ("DRC-2" "DRC-15" "Consider Fiducial_mark and CU layer marking as dead metal." comment nil nil)
+	("DRC-2" "DRC-10" " Avoid direct overlap of high voltage and low voltage traces." comment nil nil)
+	("DRC-2" "DRC-11" "Double check alignment and location of manually added soldermask openings." comment nil nil)
+	("DRC-2" "DRC-12" "Vias must not overlap with solder paste." comment nil nil)
+	("DRC-2" "DRC-13" "Double check and fix any bad pad entry." comment nil nil)
+    ("DRC-2" "DRC-14" "Always use standard thermal relief pattern." comment nil nil)
+    ("DRC-2" "DRC-15" "Add copper layer marking." comment nil nil)
+    ("DRC-2" "DRC-16" "Consider Fiducial_mark and CU layer marking as dead metal." comment nil nil)
 	
-    ("DRC-3" "DRC-16" "Check and include additional silkscreen markings listed as below:" checkbox nil nil 
+    ("DRC-3" "DRC-17" "Check and include additional silkscreen markings listed as below:" checkbox nil nil 
         ("1.) Project TLA, Board PN, Board name" 
          "2.) Date Code (8888)" 
          "3.) Lead Free logo (for PCB with Lead Free HASL surface finish)" 
          "4.) WSD Marking (for PCB with solder wave process only)" 
          "5.) HF logo (for PCB with Halogen-Free materials)" 
          "6.) \"BREADBOARD ONLY\" marking (for PCB release as breadboards only)"))
-    ("DRC-3" "DRC-17" "Pin1 indicator must be visible. Do adjustments if necessary." comment nil nil)
-    ("DRC-3" "DRC-18" "For boards with FUSE components, add fuse rating marking near to it." comment nil nil)
-    ("DRC-3" "DRC-19" "Double check PTH components refdes. Must be readable and easy to recognize." comment nil nil)
-    ("DRC-3" "DRC-20" "Check SMT components refdes orientation and location.\nUse textblock \"41\"" comment nil nil)
-    ("DRC-3" "DRC-21" "Update Drill table and Slot table before proceeding to documentation." comment nil nil
+    ("DRC-3" "DRC-18" "Pin1 indicator must be visible. Do adjustments if necessary." comment nil nil)
+    ("DRC-3" "DRC-19" "For boards with FUSE components, add fuse rating marking near to it." comment nil nil)
+    ("DRC-3" "DRC-20" "Double check PTH components refdes. Must be readable and easy to recognize." comment nil nil)
+    ("DRC-3" "DRC-21" "Check SMT components refdes orientation and location.\nUse textblock \"41\"" comment nil nil)
+    ("DRC-3" "DRC-22" "Update Drill table and Slot table before proceeding to documentation." comment nil nil
 	        (("NCDrill" "nctape_full") 
 			("Generate Slot Table" "slot")))
+	("DRC-3" "DRC-23" "For PCB with Daughter board PCBA that has 1.4mm/1.6mm pitch silver finger, please add .rou on gerber files." comment nil nil)
+
 
     ("Doc" "DOC-1" "Double check copper thickness value of stackup details on PCB Specification page2." comment nil nil)
     ("Doc" "DOC-2" "Via with POFV process must be indicated on \"VIA FEATURE\" on Drill Chart of PCB Specification page3 (hole specs)." command "ncdrill legend" nil)
@@ -236,15 +240,15 @@ unless(boundp('pcb_popup_text)
 )
 
 ;; ---- CUSTOM DESCRIPTION DICTIONARY ----
-pcb_popup_text["R-8"] = "(DVT reminder)\n\nCheck:\n- All macros should be official (no temp macro)."
+pcb_popup_text["R-2"] = "Preferred distance must be >/= board thickness. \nRefer to section 4.11.17 of QP 920-000253-0000"
+pcb_popup_text["R-9"] = "(DVT reminder)\n\nCheck:\n- All macros should be official (no temp macro)."
 pcb_popup_text["DRC-1"] = "Best Practice. \n\nThis is to avoid artwork films modification for final release when generating Valor and MVR files."
 pcb_popup_text["DRC-2"] = "This is a critical alignment step for manufacturing and smt process."
 pcb_popup_text["DRC-3"] = "Note:Refer to section 4.2.1 of QP 920-000253-0000"
 pcb_popup_text["DRC-4"] = "Update symbols version based on Valor Report. All macro should be on latest version."
-pcb_popup_text["DRC-5"] = "Preferred distance must be >/= board thickness. \nRefer to section 4.11.17 of QP 920-000253-0000"
-pcb_popup_text["DRC-6"] = "Always verify with ME if details were incomplete. \nVerify what type of screw will be using at what process. \n\nScrew should have PN."
-pcb_popup_text["DRC-7"] = "These objects might not be visible on board level but could be check on assembly level. \n (e.g. standoff collar, connector screw, chassis, connector metal casing). \n \n \nAsk ME to provide 3D of whole project assembly."
-pcb_popup_text["DRC-8"] = "Refer to section 3.1 of QP 920-000259-0000. \nAtleast 2 guide holes must be provided to individual PCB for precise indexing \n \non the test fixture for In-Circuit test (ICT). \n \n \n(3 guide holes must be provided if 0.7mm diameter testpad has been used.)"
+pcb_popup_text["DRC-5"] = "Always verify with ME if details were incomplete. \nVerify what type of screw will be using at what process. \n\nScrew should have PN."
+pcb_popup_text["DRC-6"] = "These objects might not be visible on board level but could be check on assembly level. \n (e.g. standoff collar, connector screw, chassis, connector metal casing). \n \n \nAsk ME to provide 3D of whole project assembly."
+pcb_popup_text["DRC-7"] = "Refer to section 3.1 of QP 920-000259-0000. \nAtleast 2 guide holes must be provided to individual PCB for precise indexing \n \non the test fixture for In-Circuit test (ICT). \n \n \n(3 guide holes must be provided if 0.7mm diameter testpad has been used.)"
 pcb_popup_text["DRC-11"] = "Best practice. Add to visibility tab Soldermask for easy access."
 pcb_popup_text["DRC-12"] = "Best practice. Open solderpaste_TOP/BOTTOM and cross check with vias."
 pcb_popup_text["DRC-13"] = "And fix all crooked lines, aim the shortest path possible and less curve/turn."
@@ -252,6 +256,8 @@ pcb_popup_text["DRC-16"] = "Dead metals will always treat same as the circuit th
 pcb_popup_text["DRC-18"] = "Must be easy to recognize. Must not overlap with vias and holes to avoid being disfigured.\nMust not overlap with soldermask_opening."
 pcb_popup_text["DRC-19"] = "Refer to Module3 part2 of Safety Module."
 pcb_popup_text["DRC-20"] = "Must not overlap with vias and holes to avoid being disfigured. \nMust not overlap with soldermask_opening to avoid peel off."
+pcb_popup_text["DRC-22"] = "Check for nc parameters to make sure that all nc data and route data will be generated."
+pcb_popup_text["DRC-23"] = "To check the gerber data if all slots are registered or generated in the .rou file."
 pcb_popup_text["DOC-1"] = "Refer to QP 970-011346-0000 for correct value. \nNote: Always use thin copper for outer layer in PCB stack-up. \n \nRefer to section 9.2.6 of QP 920-000246-0000"
 pcb_popup_text["DIG-1"] = "This is critical for ensuring proper circuit functionality and minimizing issues like noise, crosstalk, and signal integrity problems."
 
@@ -274,6 +280,9 @@ unless(boundp('pcb_subchk_comments) pcb_subchk_comments = makeTable("subchk_comm
 unless(boundp('pcb_chk_logs) pcb_chk_logs = makeTable("checklist_logs" ""))
 unless(boundp('pcb_sub_cmds) pcb_sub_cmds = makeTable("sub_cmds" ""))
 unless(boundp('pcb_chk_warn) pcb_chk_warn = makeTable("checklist_warn" nil))
+unless(boundp('pcb_qa_state) pcb_qa_state = makeTable("qa_state" nil))
+unless(boundp('pcb_qa_comments) pcb_qa_comments = makeTable("qa_comments" ""))
+unless(boundp('pcb_is_qa_mode) pcb_is_qa_mode = nil)
 
 (setq pcb_active_cats nil)
 foreach(cat pcb_categories if(cat != "Gerber" then pcb_active_cats = cons(cat pcb_active_cats)))
@@ -346,7 +355,33 @@ procedure( save_pcb_state()
         )
     )
 )
+procedure( save_pcb_qa_state()
+    let((fp qa_save_file)
+        unless(isDir(pcb_log_dir) createDir(pcb_log_dir))
+        qa_save_file = strcat(pcb_log_dir "/pcb_qa_save.il")
+        fp = outfile(qa_save_file "w")
+        if(fp then
+            fprintf(fp "let((data)\n")
+            fprintf(fp "data = '%L\n" tableToList(pcb_qa_state))
+            fprintf(fp "foreach(item data pcb_qa_state[car(item)] = cadr(item))\n")
+            fprintf(fp "data = '%L\n" tableToList(pcb_qa_comments))
+            fprintf(fp "foreach(item data pcb_qa_comments[car(item)] = cadr(item))\n")
+            fprintf(fp ")\n")
+            close(fp)
+        )
+    )
+)
 
+procedure( launch_pcb_designer()
+    pcb_is_qa_mode = nil
+    launch_pcb_checklist_core()
+)
+ 
+procedure( launch_pcb_checker()
+    pcb_is_qa_mode = t
+    launch_pcb_checklist_core()
+)
+ 
 procedure( load_pcb_state()
     let((save_file)
         save_file = strcat(pcb_log_dir "/pcb_checklist_save.il")
@@ -354,24 +389,29 @@ procedure( load_pcb_state()
     )
 )
 
-procedure( launch_pcb_checklist()
-    let((master_file)
+procedure( launch_pcb_checklist_core()
+    let((master_file qa_save_file)
         master_file = strcat(axlOSSlash(getWorkingDir()) "/pcb_checklist_last_session.il")
         if(isFile(master_file) then errset(load(master_file) t))
     )
-	pcb_load_report_scripts()
+    pcb_load_report_scripts()
     
-	if(!pcb_model_val || pcb_model_val == "" then pcb_model_val = pcb_fetch_var("Model"))
+    if(!pcb_model_val || pcb_model_val == "" then pcb_model_val = pcb_fetch_var("Model"))
     if(!pcb_pn_val || pcb_pn_val == "" then pcb_pn_val = pcb_fetch_var("PartNumber"))
-    if(!pcb_rev_val || pcb_rev_val == "" || pcb_rev_val == "2" then 
+    if(!pcb_rev_val || pcb_rev_val == "" || pcb_rev_val == "2" then
         let((v) v = pcb_fetch_var("Rev") if(v != "" then pcb_rev_val = v))
     )
     if(!pcb_desc_val || pcb_desc_val == "" then pcb_desc_val = pcb_fetch_var("Title"))
     if(!pcb_assy_val || pcb_assy_val == "" then pcb_assy_val = pcb_fetch_var("AssyDrawingNumber"))
     if(!pcb_thick_val || pcb_thick_val == "" then pcb_thick_val = pcb_fetch_var("boardthickness"))
-
+ 
     update_log_dir()
     load_pcb_state()
+    
+    ;; Load QA state if it exists
+    qa_save_file = strcat(pcb_log_dir "/pcb_qa_save.il")
+    if(isFile(qa_save_file) then errset(load(qa_save_file) t))
+    
     run_pcb_checklist()
 )
 
@@ -470,11 +510,10 @@ procedure( is_category_done(cat_name)
 
 ;; --- MAIN GUI GENERATOR ---
 procedure( run_pcb_checklist()
-    prog((fp frm form_file temp_rel_y y_pos max_rel_y tabset_h footer_y form_height item id desc type safe_id sub_desc sub_cmd safe_sub_id field_name field_name_cmt target_tab cx_code cx_act1 cx_act2 cx_chk cx_img cx_txt cat short_desc short_sub)
+    prog((fp frm form_file temp_rel_y y_pos max_rel_y tabset_h footer_y form_height item id desc type safe_id sub_desc sub_cmd safe_sub_id field_name field_name_cmt target_tab cx_code cx_act1 cx_act2 cx_chk cx_img cx_txt cx_qapass cx_qacmt cat short_desc short_sub form_width)
         
         unless(isDir(pcb_log_dir) createDir(pcb_log_dir))
         
-        ;; V26 GENERATION
         form_file = strcat(pcb_log_dir "/pcb_wizard_ui_v26.form")
         fp = outfile(form_file "w")
 
@@ -495,8 +534,6 @@ procedure( run_pcb_checklist()
         )
         
         tabset_h = max_rel_y + 2
-        
-        ;; TABS SHIFTED HIGHER TO Y=10
         footer_y = 10 + tabset_h + 1   
         form_height = footer_y + 9      
 
@@ -504,15 +541,13 @@ procedure( run_pcb_checklist()
         fprintf(fp "FORM\n")
         fprintf(fp "FIXED\n")
         
-        ;; --- OVERALL WIDTH COMPRESSED TO PORT 96 ---
-        fprintf(fp "PORT 96 %d\n" form_height)
+        if(pcb_is_qa_mode then form_width = 115 else form_width = 96)
+        fprintf(fp "PORT %d %d\n" form_width form_height)
         fprintf(fp "HEADER \"PCB Checklist Wizard\"\n")
         
         fprintf(fp "POPUP <stage_pop> \"Proto\" \"Proto\",\"EVT\" \"EVT\",\"DVT\" \"DVT\",\"Masspro\" \"Masspro\"\n")
         fprintf(fp "TILE\n")
 
-        ;; --- HIGHLY COMPRESSED HEADER ---
-        ;; Row 1
         fprintf(fp "TEXT \"Model:\"\nTLOC 1 1\nENDTEXT\n")
         fprintf(fp "FIELD ui_model\nFLOC 12 1\nSTRFILLIN 18 35\nENDFIELD\n")
         
@@ -522,7 +557,6 @@ procedure( run_pcb_checklist()
         fprintf(fp "TEXT \"Stage:\"\nTLOC 70 1\nENDTEXT\n")
         fprintf(fp "FIELD ui_stage\nFLOC 75 1\nENUMSET 11\nPOP \"stage_pop\"\nENDFIELD\n")
 
-        ;; Row 2
         fprintf(fp "TEXT \"PCB Part Number:\"\nTLOC 1 3\nENDTEXT\n")
         fprintf(fp "FIELD ui_partnum\nFLOC 12 3\nSTRFILLIN 18 15\nENDFIELD\n")
         
@@ -532,11 +566,9 @@ procedure( run_pcb_checklist()
         fprintf(fp "TEXT \"Thickness:\"\nTLOC 70 3\nENDTEXT\n")
         fprintf(fp "FIELD ui_thick\nFLOC 75 3\nSTRFILLIN 11 15\nENDFIELD\n")
 
-        ;; Row 3
         fprintf(fp "TEXT \"Revision:\"\nTLOC 1 5\nENDTEXT\n")
         fprintf(fp "FIELD ui_rev\nFLOC 12 5\nSTRFILLIN 5 3\nENDFIELD\n")
 
-        ;; Row 4 (Checkboxes pulled closer together & Update Button merged)
         fprintf(fp "TEXT \"Skip Categories:\"\nTLOC 1 7\nENDTEXT\n")
         fprintf(fp "FIELD skip_DIGITAL\nFLOC 16 7\nCHECKLIST \"Digital\"\nENDFIELD\n")
         fprintf(fp "FIELD skip_META\nFLOC 26 7\nCHECKLIST \"Meta\"\nENDFIELD\n")
@@ -544,29 +576,50 @@ procedure( run_pcb_checklist()
         
         fprintf(fp "FIELD update_info_btn\nFLOC 75 7\nMENUBUTTON \"Update Info\" 14 1\nENDFIELD\n")
 
-        ;; TABS 
         fprintf(fp "TABSET \"category_tabs\"\n")
         fprintf(fp "FLOC 1 10\n")
-        fprintf(fp "FSIZE 94 %d\n" tabset_h)
+        fprintf(fp "FSIZE %d %d\n" form_width-2 tabset_h)
 
         foreach(cat pcb_active_cats
             fprintf(fp "TAB \"%s\"\n" cat)
             
             if(cat == "Report" then
-                cx_code = 2 cx_act1 = 10 cx_act2 = 18 cx_chk = 28 cx_img = 33 cx_txt = 38
-                fprintf(fp "TEXT \"CODE\"\nTLOC %d 1\nENDTEXT\n" cx_code)
-                fprintf(fp "TEXT \"RUN\"\nTLOC %d 1\nENDTEXT\n" cx_act1 + 1)
-                fprintf(fp "TEXT \"COMMENT\"\nTLOC %d 1\nENDTEXT\n" cx_act2)
-                fprintf(fp "TEXT \"DONE\"\nTLOC %d 1\nENDTEXT\n" cx_chk - 1)
-                fprintf(fp "TEXT \"?\"\nTLOC %d 1\nENDTEXT\n" cx_img + 1)
-                fprintf(fp "TEXT \"DESCRIPTION\"\nTLOC %d 1\nENDTEXT\n" cx_txt)
+                if(pcb_is_qa_mode then
+                    cx_code = 2 cx_act1 = 10 cx_chk = 18 cx_qapass = 26 cx_qacmt = 34 cx_img = 42 cx_txt = 47
+                    fprintf(fp "TEXT \"CODE\"\nTLOC %d 1\nENDTEXT\n" cx_code)
+                    fprintf(fp "TEXT \"RUN\"\nTLOC %d 1\nENDTEXT\n" cx_act1 + 1)
+                    fprintf(fp "TEXT \"DSN-DONE\"\nTLOC %d 1\nENDTEXT\n" cx_chk - 2)
+                    fprintf(fp "TEXT \"QA PASS\"\nTLOC %d 1\nENDTEXT\n" cx_qapass - 1)
+                    fprintf(fp "TEXT \"QA CMT\"\nTLOC %d 1\nENDTEXT\n" cx_qacmt)
+                    fprintf(fp "TEXT \"?\"\nTLOC %d 1\nENDTEXT\n" cx_img + 1)
+                    fprintf(fp "TEXT \"DESCRIPTION\"\nTLOC %d 1\nENDTEXT\n" cx_txt)
+                else
+                    cx_code = 2 cx_act1 = 10 cx_act2 = 18 cx_chk = 28 cx_img = 33 cx_txt = 38
+                    fprintf(fp "TEXT \"CODE\"\nTLOC %d 1\nENDTEXT\n" cx_code)
+                    fprintf(fp "TEXT \"RUN\"\nTLOC %d 1\nENDTEXT\n" cx_act1 + 1)
+                    fprintf(fp "TEXT \"COMMENT\"\nTLOC %d 1\nENDTEXT\n" cx_act2)
+                    fprintf(fp "TEXT \"DONE\"\nTLOC %d 1\nENDTEXT\n" cx_chk - 1)
+                    fprintf(fp "TEXT \"?\"\nTLOC %d 1\nENDTEXT\n" cx_img + 1)
+                    fprintf(fp "TEXT \"DESCRIPTION\"\nTLOC %d 1\nENDTEXT\n" cx_txt)
+                )
             else
-                cx_code = 2 cx_act1 = 12 cx_act2 = 18 cx_img = 24 cx_txt = 29
-                fprintf(fp "TEXT \"CODE\"\nTLOC %d 1\nENDTEXT\n" cx_code)
-                fprintf(fp "TEXT \"YES\"\nTLOC %d 1\nENDTEXT\n" cx_act1 - 1)
-                fprintf(fp "TEXT \"NO\"\nTLOC %d 1\nENDTEXT\n" cx_act2 - 1)
-                fprintf(fp "TEXT \"?\"\nTLOC %d 1\nENDTEXT\n" cx_img + 1)
-                fprintf(fp "TEXT \"DESCRIPTION\"\nTLOC %d 1\nENDTEXT\n" cx_txt)
+                if(pcb_is_qa_mode then
+                    cx_code = 2 cx_act1 = 10 cx_act2 = 16 cx_qapass = 24 cx_qacmt = 32 cx_img = 40 cx_txt = 45
+                    fprintf(fp "TEXT \"CODE\"\nTLOC %d 1\nENDTEXT\n" cx_code)
+                    fprintf(fp "TEXT \"D-YES\"\nTLOC %d 1\nENDTEXT\n" cx_act1 - 1)
+                    fprintf(fp "TEXT \"D-NO\"\nTLOC %d 1\nENDTEXT\n" cx_act2 - 1)
+                    fprintf(fp "TEXT \"QA PASS\"\nTLOC %d 1\nENDTEXT\n" cx_qapass - 1)
+                    fprintf(fp "TEXT \"QA CMT\"\nTLOC %d 1\nENDTEXT\n" cx_qacmt)
+                    fprintf(fp "TEXT \"?\"\nTLOC %d 1\nENDTEXT\n" cx_img + 1)
+                    fprintf(fp "TEXT \"DESCRIPTION\"\nTLOC %d 1\nENDTEXT\n" cx_txt)
+                else
+                    cx_code = 2 cx_act1 = 12 cx_act2 = 18 cx_img = 24 cx_txt = 29
+                    fprintf(fp "TEXT \"CODE\"\nTLOC %d 1\nENDTEXT\n" cx_code)
+                    fprintf(fp "TEXT \"YES\"\nTLOC %d 1\nENDTEXT\n" cx_act1 - 1)
+                    fprintf(fp "TEXT \"NO\"\nTLOC %d 1\nENDTEXT\n" cx_act2 - 1)
+                    fprintf(fp "TEXT \"?\"\nTLOC %d 1\nENDTEXT\n" cx_img + 1)
+                    fprintf(fp "TEXT \"DESCRIPTION\"\nTLOC %d 1\nENDTEXT\n" cx_txt)
+                )
             )
 
             y_pos = 3
@@ -577,42 +630,42 @@ procedure( run_pcb_checklist()
                     type = nth(3 item)
                     safe_id = buildString(parseString(id "-") "_")
                     
-                    if(cat == "Report" then
-                        short_desc = pcb_truncate_desc(desc 120)
-                    else
-                        short_desc = pcb_truncate_desc(desc 125)
-                    )
-                    
+                    if(cat == "Report" then short_desc = pcb_truncate_desc(desc 120) else short_desc = pcb_truncate_desc(desc 125))
                     fprintf(fp "TEXT \"%s\"\nTLOC %d %d\nENDTEXT\n" id cx_code y_pos)
                     
                     if(cat == "Report" then
                         if(type == 'command then fprintf(fp "FIELD run_%s\nFLOC %d %d\nMENUBUTTON \"Run\" 6 1\nENDFIELD\n" safe_id cx_act1 y_pos))
-                        fprintf(fp "FIELD cmt_%s\nFLOC %d %d\nMENUBUTTON \"Comment\" 8 1\nENDFIELD\n" safe_id cx_act2 y_pos)
-                        fprintf(fp "FIELD chk_%s\nFLOC %d %d\nCHECKLIST \"\"\nENDFIELD\n" safe_id cx_chk y_pos)
+                        if(pcb_is_qa_mode then
+                            fprintf(fp "FIELD chk_%s\nFLOC %d %d\nCHECKLIST \"\"\nENDFIELD\n" safe_id cx_chk y_pos)
+                            fprintf(fp "FIELD qapass_%s\nFLOC %d %d\nCHECKLIST \"\"\nENDFIELD\n" safe_id cx_qapass y_pos)
+                            fprintf(fp "FIELD qacmt_%s\nFLOC %d %d\nMENUBUTTON \"QA Cmt\" 7 1\nENDFIELD\n" safe_id cx_qacmt y_pos)
+                        else
+                            fprintf(fp "FIELD cmt_%s\nFLOC %d %d\nMENUBUTTON \"Comment\" 8 1\nENDFIELD\n" safe_id cx_act2 y_pos)
+                            fprintf(fp "FIELD chk_%s\nFLOC %d %d\nCHECKLIST \"\"\nENDFIELD\n" safe_id cx_chk y_pos)
+                        )
                         fprintf(fp "FIELD img_%s\nFLOC %d %d\nMENUBUTTON \"?\" 3 1\nENDFIELD\n" safe_id cx_img y_pos)
                     else
                         fprintf(fp "FIELD chkY_%s\nFLOC %d %d\nCHECKLIST \"\"\nENDFIELD\n" safe_id cx_act1 y_pos)
                         fprintf(fp "FIELD chkN_%s\nFLOC %d %d\nCHECKLIST \"\"\nENDFIELD\n" safe_id cx_act2 y_pos)
+                        if(pcb_is_qa_mode then
+                            fprintf(fp "FIELD qapass_%s\nFLOC %d %d\nCHECKLIST \"\"\nENDFIELD\n" safe_id cx_qapass y_pos)
+                            fprintf(fp "FIELD qacmt_%s\nFLOC %d %d\nMENUBUTTON \"QA Cmt\" 7 1\nENDFIELD\n" safe_id cx_qacmt y_pos)
+                        )
                         fprintf(fp "FIELD img_%s\nFLOC %d %d\nMENUBUTTON \"?\" 3 1\nENDFIELD\n" safe_id cx_img y_pos)
                     )
                      
                     fprintf(fp "TEXT \"%s\"\nTLOC %d %d\nENDTEXT\n" short_desc cx_txt y_pos)
-                    
                     y_pos = y_pos + 2
                     
                     if(length(item) > 6 then
                         sub_idx = 1
                         foreach(sub_item nth(6 item)
-                            let((sub_cmd)
+                            let((sub_cmd field_name_Y field_name_N)
                                 if(listp(sub_item) then sub_desc = nth(0 sub_item) else sub_desc = sub_item)
                                 sub_cmd = if(listp(sub_item) then nth(1 sub_item) else nil)
                                 safe_sub_id = sprintf(nil "%d" sub_idx)
                                 
-                                if(cat == "Report" then
-                                    short_sub = pcb_truncate_desc(sub_desc 120)
-                                else
-                                    short_sub = pcb_truncate_desc(sub_desc 125)
-                                )
+                                if(cat == "Report" then short_sub = pcb_truncate_desc(sub_desc 120) else short_sub = pcb_truncate_desc(sub_desc 125))
                                 
                                 if(cat == "Report" then
                                     if(sub_cmd then
@@ -620,8 +673,10 @@ procedure( run_pcb_checklist()
                                         fprintf(fp "FIELD %s\nFLOC %d %d\nMENUBUTTON \"Run\" 6 1\nENDFIELD\n" field_name cx_act1 y_pos)
                                         pcb_sub_cmds[field_name] = sub_cmd
                                     )
-                                    field_name_cmt = strcat("cmtsub_" safe_id "_" safe_sub_id)
-                                    fprintf(fp "FIELD %s\nFLOC %d %d\nMENUBUTTON \"Comment\" 8 1\nENDFIELD\n" field_name_cmt cx_act2 y_pos)
+                                    if(!pcb_is_qa_mode then
+                                        field_name_cmt = strcat("cmtsub_" safe_id "_" safe_sub_id)
+                                        fprintf(fp "FIELD %s\nFLOC %d %d\nMENUBUTTON \"Comment\" 8 1\nENDFIELD\n" field_name_cmt cx_act2 y_pos)
+                                    )
                                     field_name_chk = strcat("subchk_" safe_id "_" safe_sub_id)
                                     fprintf(fp "FIELD %s\nFLOC %d %d\nCHECKLIST \"\"\nENDFIELD\n" field_name_chk cx_chk y_pos)
                                 else
@@ -633,7 +688,6 @@ procedure( run_pcb_checklist()
                                 )
                                 
                                 fprintf(fp "TEXT \"%s\"\nTLOC %d %d\nENDTEXT\n" short_sub cx_txt y_pos)
-                                
                                 y_pos = y_pos + 2
                                 sub_idx = sub_idx + 1
                             )
@@ -641,20 +695,19 @@ procedure( run_pcb_checklist()
                     )
                 )
             )
-            fprintf(fp "TEXT \".\"\nTLOC 90 %d\nENDTEXT\n" y_pos)
+            fprintf(fp "TEXT \".\"\nTLOC %d %d\nENDTEXT\n" form_width-6 y_pos)
             fprintf(fp "ENDTAB\n")
         )
         fprintf(fp "ENDTABSET\n")
         
-        ;; === COMPACT FOOTER DASHBOARD ===
         fprintf(fp "FIELD ref_btn\nFLOC 2 %d\nMENUBUTTON \"Reference Docs\" 15 1\nENDFIELD\n" footer_y + 1)
-        fprintf(fp "FIELD reset_btn\nFLOC 19 %d\nMENUBUTTON \"Reset List\" 12 1\nENDFIELD\n" footer_y + 1)
+        if(!pcb_is_qa_mode then fprintf(fp "FIELD reset_btn\nFLOC 19 %d\nMENUBUTTON \"Reset List\" 12 1\nENDFIELD\n" footer_y + 1))
         
         fprintf(fp "FIELD export_btn\nFLOC 2 %d\nMENUBUTTON \"Export\" 15 1\nENDFIELD\n" footer_y + 3)
         fprintf(fp "FIELD close_btn\nFLOC 19 %d\nMENUBUTTON \"Close\" 12 1\nENDFIELD\n" footer_y + 3)
 
         fprintf(fp "TEXT \"Item Details & Image Launcher:\"\nTLOC 32 %d\nENDTEXT\n" footer_y)
-        fprintf(fp "FIELD ui_details_list\nFLOC 32 %d\nLIST \"\" 62 6\nENDFIELD\n" footer_y + 1)
+        fprintf(fp "FIELD ui_details_list\nFLOC 32 %d\nLIST \"\" %d 6\nENDFIELD\n" footer_y + 1 form_width-34)
         
         fprintf(fp "ENDTILE\n")
         fprintf(fp "ENDFORM\n") 
@@ -666,9 +719,7 @@ procedure( run_pcb_checklist()
         if(!frm then axlUIConfirm("CRITICAL ERROR: Failed to create Cadence form.") return(nil))
         
         if(frm then
-            when(fboundp('axlFormSetLoc) && pcb_last_form_loc
-                axlFormSetLoc(frm pcb_last_form_loc)
-            )
+            when(fboundp('axlFormSetLoc) && pcb_last_form_loc axlFormSetLoc(frm pcb_last_form_loc))
             
             errset(axlFormListDeleteItem(frm "ui_details_list" 'all) t)
             for(i 0 100 errset(axlFormListDeleteItem(frm "ui_details_list" 0) t))
@@ -704,16 +755,26 @@ procedure( run_pcb_checklist()
             axlFormSetField(frm "category_tabs" target_tab)
             
             foreach(item pcb_active_items
-                let((id safe_id sub_desc field_name cat state_key)
+                let((id safe_id sub_desc field_name cat state_key field_name_Y field_name_N)
                     cat = nth(0 item)
                     id = nth(1 item)
                     safe_id = buildString(parseString(id "-") "_")
-                    
+                 
                     if(cat == "Report" then
                         if(pcb_chk_state[id] then axlFormSetField(frm strcat("chk_" safe_id) t))
                     else
                         if(pcb_chk_state[id] == "YES" then axlFormSetField(frm strcat("chkY_" safe_id) t))
                         if(pcb_chk_state[id] == "NO" then axlFormSetField(frm strcat("chkN_" safe_id) t))
+                    )
+                    
+                    if(pcb_is_qa_mode then
+                        if(pcb_qa_state[id] then axlFormSetField(frm strcat("qapass_" safe_id) t))
+                        if(cat == "Report" then
+                            errset(axlFormSetFieldEditable(frm strcat("chk_" safe_id) nil) t)
+                        else
+                            errset(axlFormSetFieldEditable(frm strcat("chkY_" safe_id) nil) t)
+                            errset(axlFormSetFieldEditable(frm strcat("chkN_" safe_id) nil) t)
+                        )
                     )
                     
                     if(length(item) > 6 then
@@ -725,6 +786,7 @@ procedure( run_pcb_checklist()
                             if(cat == "Report" then
                                 field_name = strcat("subchk_" safe_id "_" safe_sub_id)
                                 if(pcb_subchk_state[field_name] then axlFormSetField(frm field_name t))
+                                if(pcb_is_qa_mode then errset(axlFormSetFieldEditable(frm field_name nil) t))
                             else
                                 state_key = strcat("subchk_" safe_id "_" safe_sub_id)
                                 field_name_Y = strcat("subY_" safe_id "_" safe_sub_id)
@@ -739,6 +801,10 @@ procedure( run_pcb_checklist()
                                 else
                                     if(pcb_subchk_state[state_key] == "YES" then axlFormSetField(frm field_name_Y t))
                                     if(pcb_subchk_state[state_key] == "NO" then axlFormSetField(frm field_name_N t))
+                                    if(pcb_is_qa_mode then
+                                        errset(axlFormSetFieldEditable(frm field_name_Y nil) t)
+                                        errset(axlFormSetFieldEditable(frm field_name_N nil) t)
+                                    )
                                 )
                             )
                             sub_idx = sub_idx + 1
@@ -835,18 +901,29 @@ procedure( pcb_chk_callback(frm)
             return(nil)
         )
 
-        if(frm->doneState == 2 || frm->doneState == 3 then
-            when(fboundp('axlFormGetLoc) pcb_last_form_loc = axlFormGetLoc(frm))
-            pcb_last_active_tab = axlFormGetField(frm "category_tabs")
-            update_log_dir()
-            save_pcb_state()
-            return(nil)
-        )
+
+if(frm->doneState == 2 || frm->doneState == 3 then
+    when(fboundp('axlFormGetLoc)
+        errset(pcb_last_form_loc = axlFormGetLoc(frm) t)
+    )
+    ;; pcb_last_active_tab is already maintained in the category_tabs handler
+    update_log_dir()
+    save_pcb_state()
+    return(nil)
+)
+
         
-        when(field == "ref_btn"
-          shell("explorer \"C:\\Your\\Folder\\Path\\Goes\\Here\"")
-          return(nil)
-        )
+
+
+when(field == "ref_btn"
+  errset(shell("explorer \"I:\\WEBFILES\\PCB_CHECKLIST\"") t)
+  return(nil)
+)
+
+                    ;; Append Designer's Comment if it exists
+                    if(pcb_chk_comments[id] && pcb_chk_comments[id] != "" then
+                        tip = strcat(tip "\n\n=== DESIGNER'S NOTE ===\n" pcb_chk_comments[id])
+                    )
 
         ;; === RIGHT-SIDE DETAILS LIST & FAST IMAGE VIEWER ===
         if(rexMatchp("^img_" field) then
@@ -904,7 +981,7 @@ procedure( pcb_chk_callback(frm)
         if(field == "reset_btn" then
             if(axlUIYesNo("Are you sure you want to RESET this checklist?\nAll checkboxes and comments will be erased permanently!") then
                 
-                pcb_model_val = ""
+                pcb_model_val = pcb_fetch_var("Model")
                 pcb_skip_state = makeTable("skip_state" nil) 
                 pcb_chk_state = makeTable("checklist_state" nil)
                 pcb_subchk_state = makeTable("subchk_state" nil) 
@@ -978,7 +1055,31 @@ procedure( pcb_chk_callback(frm)
             )
             return(nil)
         )
-
+        if(rexMatchp("^qapass_" field) then
+            parts = parseString(field "_")
+            if(length(parts) >= 3 then safe_id = strcat(nth(1 parts) "_" nth(2 parts)) else safe_id = "")
+            foreach(itm pcb_active_items if(buildString(parseString(nth(1 itm) "-") "_") == safe_id then item = itm))
+            if(item then
+                id = nth(1 item)
+                if(val then pcb_qa_state[id] = t else pcb_qa_state[id] = nil)
+                save_pcb_qa_state()
+            )
+            return(nil)
+        )
+        
+        if(rexMatchp("^qacmt_" field) then
+            parts = parseString(field "_")
+            if(length(parts) >= 3 then safe_id = strcat(nth(1 parts) "_" nth(2 parts)) else safe_id = "")
+            foreach(itm pcb_active_items if(buildString(parseString(nth(1 itm) "-") "_") == safe_id then item = itm))
+            if(item then
+                id = nth(1 item)
+                cmt_val = axlUIPrompt(sprintf(nil "QA Comment for %s:" id) pcb_qa_comments[id])
+                if(cmt_val then pcb_qa_comments[id] = cmt_val)
+                save_pcb_qa_state()
+            )
+            return(nil)
+        )
+		
         if(rexMatchp("^chkY_" field) || rexMatchp("^chkN_" field) || rexMatchp("^subY_" field) || rexMatchp("^subN_" field) || rexMatchp("^chk_" field) || rexMatchp("^run_" field) || rexMatchp("^cmt_" field) || rexMatchp("^cmtsub_" field) || rexMatchp("^subchk_" field) || rexMatchp("^runsub_" field) then
             parts = parseString(field "_")
             if(length(parts) >= 3 then safe_id = strcat(nth(1 parts) "_" nth(2 parts)) else safe_id = "")
@@ -1145,21 +1246,31 @@ procedure( pcb_chk_callback(frm)
                         when(id == "R-4"  && boundp('r4_short_count)     errCnt = r4_short_count)
                         when(id == "R-5"  && boundp('r5_error_count)     errCnt = r5_error_count)
                         when(id == "R-6"  && boundp('r6_error_count)     errCnt = r6_error_count)
+						when(id == "R-7"  && boundp('r7_error_count)     errCnt = r7_error_count)
                         when(id == "R-8"  && boundp('r8_error_count)     errCnt = r8_error_count)
                         when(id == "R-9"  && boundp('r9_error_count)     errCnt = r9_error_count)
                         when(id == "R-10"  && boundp('r10_error_count)     errCnt = r10_error_count)
                         when(id == "R-11" && boundp('r11_error_count)    errCnt = r11_error_count)
                         
-                        if(numberp(errCnt) && errCnt > 0 then
-                            unless(axlUIYesNo(sprintf(nil "%s still has %d issue(s).\nProceed anyway with a comment?" id errCnt))
-                                return(nil)
-                            )
-                        )
+
+if(numberp(errCnt) then
+    if(errCnt == 999 || errCnt == 9999 then
+        axlUIConfirm(sprintf(nil "%s did not complete successfully or was cancelled.\nPlease click RUN again before adding a comment." id))
+        return(nil)
+    )
+    if(errCnt > 0 then
+        unless(axlUIYesNo(sprintf(nil "%s still has %d issue(s).\nProceed anyway with a comment?" id errCnt))
+            return(nil)
+        )
+    )
+)
+
                     )
                     
                     if(cmt_val != "" then
                         pcb_chk_comments[id] = cmt_val
                         pcb_chk_state[id] = t
+						pcb_chk_warn[id] = nil
                         axlFormSetField(frm strcat("chk_" safe_id) t)
                     else
                         pcb_chk_comments[id] = ""
@@ -1178,6 +1289,7 @@ when(id == "R-3"  r3_missing_nets = 999)
 when(id == "R-4"  r4_short_count = 999)
 when(id == "R-5"  r5_error_count = 999)
 when(id == "R-6"  r6_error_count = 999 r6_dummy_net_count = 0 r6_purged_nets = 0)
+when(id == "R-7"  r7_error_count = 999)
 when(id == "R-8"  r8_error_count = 999)
 when(id == "R-9"  r9_error_count = 999)
 when(id == "R-10" r10_error_count = 999)
@@ -1203,7 +1315,9 @@ when(id == "R-11" r11_error_count = 999)
 					
 
 when(id == "R-2"
-  unless(boundp('r2_error_count) r2_error_count = 999)
+  unless(boundp('r2_error_count)       r2_error_count = 999)
+unless(boundp('r2_eval_count)        r2_eval_count = 0)
+unless(boundp('r2_fallback_status)   r2_fallback_status = "")
   if(numberp(r2_error_count) && r2_error_count == 0 then
     progn(
       pcb_chk_warn[id] = nil
@@ -1259,12 +1373,23 @@ when(id == "R-2"
                       else axlUIConfirm(sprintf(nil "R-8 Unconnected pin pairs found: %d" r8_error_count)))
                     )
 
-                    when(id == "R-9"
-                      unless(boundp('r9_error_count) r9_error_count = 999)
-                      if(numberp(r9_error_count) && r9_error_count == 0 then
-                        progn( pcb_chk_state[id] = t axlFormSetField(frm strcat("chk_" safe_id) t) )
-                      else axlUIConfirm(sprintf(nil "R-9 Issues found (Unplaced / Temp Macro): %d" r9_error_count)))
-                    )
+
+when(id == "R-9"
+  unless(boundp('r9_error_count) r9_error_count = 999)
+  if(numberp(r9_error_count) && r9_error_count == 0 then
+    progn(
+      pcb_chk_warn[id] = nil
+      pcb_chk_state[id] = t
+      axlFormSetField(frm strcat("chk_" safe_id) t)
+    )
+  else
+    progn(
+      pcb_chk_warn[id] = t
+      axlUIConfirm(sprintf(nil "R-9 Issues found (Unplaced / Temp Macro): %d" r9_error_count))
+    )
+  )
+)
+
 
                     when(id == "R-10"
                       unless(boundp('r10_error_count) r10_error_count = 999)
@@ -1353,7 +1478,7 @@ when(id == "R-2"
             )
         )
                
-        if(field == "export_btn" then
+         if(field == "export_btn" then
             all_done = t
             fail_cat = nil
             foreach(cat pcb_active_cats
@@ -1375,10 +1500,10 @@ when(id == "R-2"
             out_port = outfile(out_file "w")
             
             if(out_port then
-                fprintf(out_port "Model:,\"%s\"\nPCB Part Number:,\"%s\"\nPCB Part Number Revision:,\"%s\"\nPCB Description:,\"%s\"\nPCB Assembly Drawing Number:,\"%s\"\nStage:,\"%s\"\nBoard thickness:,\"%s\"\n\nCode,Details,Main Comment,Sub-Item Comments,Status (Yes/No)\n" 
+                fprintf(out_port "Model:,\"%s\"\nPCB Part Number:,\"%s\"\nPCB Part Number Revision:,\"%s\"\nPCB Description:,\"%s\"\nPCB Assembly Drawing Number:,\"%s\"\nStage:,\"%s\"\nBoard thickness:,\"%s\"\n\nCode,Details,Main Comment,Sub-Item Comments,Designer Status,QA Status,QA Remarks\n" 
                         pcb_model_val pcb_pn_val pcb_rev_val pcb_desc_val pcb_assy_val pcb_stage_val pcb_thick_val)
                 foreach(itm pcb_chk_data 
-                    let((all_sub_cmts itm_id safe_itm_id sub_field desc_clean cmt_clean sub_cmt_clean cat is_skipped main_state state_key cmt_key sub_state)
+                    let((all_sub_cmts itm_id safe_itm_id sub_field desc_clean cmt_clean sub_cmt_clean cat is_skipped main_state state_key cmt_key sub_state qa_stat qa_cmt)
                         cat = nth(0 itm)
                         is_skipped = nil
                         if(cat == "Digital" && pcb_skip_state["DIGITAL"] then is_skipped = t)
@@ -1390,7 +1515,12 @@ when(id == "R-2"
                         desc_clean = buildString(parseString(nth(2 itm) "\n") " ")
                         desc_clean = buildString(parseString(desc_clean "\"") "'")
                         
-                        if(is_skipped then fprintf(out_port "\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n" itm_id desc_clean "" "" "SKIPPED")
+                        ;; Grab QA Data
+                        qa_stat = if(pcb_qa_state[itm_id] "PASS" "PENDING")
+                        qa_cmt = pcb_qa_comments[itm_id]
+                        if(qa_cmt then qa_cmt = buildString(parseString(qa_cmt "\"") "'") qa_cmt = buildString(parseString(qa_cmt "\n") " ") else qa_cmt = "")
+
+                        if(is_skipped then fprintf(out_port "\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n" itm_id desc_clean "" "" "SKIPPED" "SKIPPED" "")
                         else
                             all_sub_cmts = ""
                             if(length(itm) > 6 then
@@ -1408,7 +1538,6 @@ when(id == "R-2"
                                     else
                                         state_key = strcat("subchk_" safe_itm_id "_" sprintf(nil "%d" sub_idx))
                                         cmt_key = strcat("cmtsub_" safe_itm_id "_" sprintf(nil "%d" sub_idx))
-                                        
                                         sub_state = pcb_subchk_state[state_key]
                                         if(!sub_state then sub_state = "PENDING")
                                         
@@ -1424,17 +1553,14 @@ when(id == "R-2"
                                 )
                             )
                             cmt_clean = pcb_chk_comments[itm_id]
-                            if(cmt_clean then 
-                                cmt_clean = buildString(parseString(cmt_clean "\"") "'")
-                                cmt_clean = buildString(parseString(cmt_clean "\n") " ")
-                            else cmt_clean = "")
+                            if(cmt_clean then cmt_clean = buildString(parseString(cmt_clean "\"") "'") cmt_clean = buildString(parseString(cmt_clean "\n") " ") else cmt_clean = "")
                             
                             if(cat == "Report" then
-                                fprintf(out_port "\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n" itm_id desc_clean cmt_clean all_sub_cmts if(pcb_chk_state[itm_id] "YES" "NO"))
+                                fprintf(out_port "\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n" itm_id desc_clean cmt_clean all_sub_cmts if(pcb_chk_state[itm_id] "YES" "NO") qa_stat qa_cmt)
                             else
                                 main_state = pcb_chk_state[itm_id]
                                 if(!main_state then main_state = "PENDING")
-                                fprintf(out_port "\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n" itm_id desc_clean cmt_clean all_sub_cmts main_state)
+                                fprintf(out_port "\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n" itm_id desc_clean cmt_clean all_sub_cmts main_state qa_stat qa_cmt)
                             )
                         )
                     )
@@ -1448,30 +1574,19 @@ when(id == "R-2"
                     vbs_port = outfile(vbs_file "w")
                     if(vbs_port then
                         fprintf(vbs_port "Dim objExcel, objWB, objSheet, fso, rootFolder, logFolder, file, ts, row\n")
+                        fprintf(vbs_port "Dim prefix, csvFile, xlsxFile, wbCSV, mSheet, lastRow, fbSheet\n")
                         fprintf(vbs_port "Set fso = CreateObject(\"Scripting.FileSystemObject\")\n")
                         fprintf(vbs_port "Set objExcel = CreateObject(\"Excel.Application\")\n")
                         fprintf(vbs_port "objExcel.Visible = False\n")
                         fprintf(vbs_port "objExcel.DisplayAlerts = False\n")
-                        fprintf(vbs_port "Dim prefix, csvFile, xlsxFile\n")
                         fprintf(vbs_port "prefix = WScript.Arguments(0)\n")
-                        fprintf(vbs_port "rootFolder = \"%s\"\n" root_dir)
                         fprintf(vbs_port "logFolder = \"%s\"\n" work_dir)
-                        fprintf(vbs_port "On Error Resume Next\n")
-                        fprintf(vbs_port "For Each file in fso.GetFolder(rootFolder).Files\n")
-                        fprintf(vbs_port "    If LCase(fso.GetExtensionName(file.Name)) = \"log\" Then\n")
-                        fprintf(vbs_port "        If Left(UCase(file.Name), 2) = \"R-\" Or Left(UCase(file.Name), 4) = \"DRC-\" Then\n")
-                        fprintf(vbs_port "            If fso.FileExists(logFolder & Chr(92) & file.Name) Then fso.DeleteFile(logFolder & Chr(92) & file.Name)\n")
-                        fprintf(vbs_port "            fso.MoveFile file.Path, logFolder & Chr(92)\n")
-                        fprintf(vbs_port "        End If\n")
-                        fprintf(vbs_port "    End If\n")
-                        fprintf(vbs_port "Next\n")
-                        fprintf(vbs_port "On Error GoTo 0\n")
+                        
                         fprintf(vbs_port "csvFile = logFolder & Chr(92) & prefix & \"_checklist.csv\"\n")
                         fprintf(vbs_port "xlsxFile = logFolder & Chr(92) & prefix & \"_Master_Checklist.xlsx\"\n")
                         fprintf(vbs_port "Set objWB = objExcel.Workbooks.Add()\n")
                         
                         fprintf(vbs_port "If fso.FileExists(csvFile) Then\n")
-                        fprintf(vbs_port "    Dim wbCSV, mSheet, lastRow\n")
                         fprintf(vbs_port "    Set wbCSV = objExcel.Workbooks.Open(csvFile)\n")
                         fprintf(vbs_port "    wbCSV.Sheets(1).Copy objWB.Sheets(1)\n")
                         fprintf(vbs_port "    wbCSV.Close False\n")
@@ -1485,17 +1600,21 @@ when(id == "R-2"
                         fprintf(vbs_port "    mSheet.Columns(\"C\").ColumnWidth = 35\n")
                         fprintf(vbs_port "    mSheet.Columns(\"D\").ColumnWidth = 45\n")
                         fprintf(vbs_port "    mSheet.Columns(\"E\").ColumnWidth = 15\n")
+                        fprintf(vbs_port "    mSheet.Columns(\"F\").ColumnWidth = 15\n")
+                        fprintf(vbs_port "    mSheet.Columns(\"G\").ColumnWidth = 45\n")
                         fprintf(vbs_port "    If lastRow >= 9 Then\n")
-                        fprintf(vbs_port "        mSheet.Range(mSheet.Cells(9, 1), mSheet.Cells(lastRow, 5)).Borders.LineStyle = 1\n") 
-                        fprintf(vbs_port "        mSheet.Range(\"A9:E9\").Interior.Color = RGB(146, 208, 80)\n") 
-                        fprintf(vbs_port "        mSheet.Range(\"A9:E9\").Font.Bold = True\n")
-                        fprintf(vbs_port "        mSheet.Range(\"A9:E9\").VerticalAlignment = -4108\n") 
+                        fprintf(vbs_port "        mSheet.Range(mSheet.Cells(9, 1), mSheet.Cells(lastRow, 7)).Borders.LineStyle = 1\n") 
+                        fprintf(vbs_port "        mSheet.Range(\"A9:G9\").Interior.Color = RGB(146, 208, 80)\n") 
+                        fprintf(vbs_port "        mSheet.Range(\"A9:G9\").Font.Bold = True\n")
+                        fprintf(vbs_port "        mSheet.Range(\"A9:G9\").VerticalAlignment = -4108\n") 
                         fprintf(vbs_port "        mSheet.Rows.AutoFit\n")
                         fprintf(vbs_port "    End If\n")
+                        fprintf(vbs_port "Else\n")
+                        fprintf(vbs_port "    Set mSheet = objWB.Sheets(1)\n")
+                        fprintf(vbs_port "    mSheet.Name = \"Master Checklist\"\n")
                         fprintf(vbs_port "End If\n")
                         
-                        fprintf(vbs_port "Dim fbSheet\n")
-                        fprintf(vbs_port "Set fbSheet = objWB.Sheets.Add(, objWB.Sheets(\"Master Checklist\"))\n")
+                        fprintf(vbs_port "Set fbSheet = objWB.Sheets.Add(, objWB.Sheets(objWB.Sheets.Count))\n")
                         fprintf(vbs_port "fbSheet.Name = \"Feedback & Proof\"\n")
                         fprintf(vbs_port "fbSheet.Cells(1, 1).Value = \"Entry #\"\n")
                         fprintf(vbs_port "fbSheet.Cells(1, 2).Value = \"Description\"\n")
@@ -1513,10 +1632,10 @@ when(id == "R-2"
                         fprintf(vbs_port "fbSheet.Range(\"A1:L1\").Interior.Color = RGB(220, 230, 241)\n")
                         fprintf(vbs_port "fbSheet.Columns(\"A:L\").ColumnWidth = 20\n")
                         
+                        fprintf(vbs_port "On Error Resume Next\n")
                         fprintf(vbs_port "For Each file in fso.GetFolder(logFolder).Files\n")
                         fprintf(vbs_port "    If LCase(fso.GetExtensionName(file.Name)) = \"log\" And (Left(UCase(file.Name), 2) = \"R-\" Or Left(UCase(file.Name), 4) = \"DRC-\") Then\n")
-                        fprintf(vbs_port "        Set objSheet = objWB.Sheets.Add()\n")
-                        fprintf(vbs_port "        objSheet.Move , objWB.Sheets(objWB.Sheets.Count)\n")
+                        fprintf(vbs_port "        Set objSheet = objWB.Sheets.Add(, objWB.Sheets(objWB.Sheets.Count))\n")
                         fprintf(vbs_port "        objSheet.Name = Left(Replace(file.Name, \".log\", \"\"), 31)\n")
                         fprintf(vbs_port "        Set ts = fso.OpenTextFile(file.Path, 1)\n")
                         fprintf(vbs_port "        row = 1\n")
@@ -1527,18 +1646,18 @@ when(id == "R-2"
                         fprintf(vbs_port "        ts.Close\n")
                         fprintf(vbs_port "    End If\n")
                         fprintf(vbs_port "Next\n")
-                        fprintf(vbs_port "On Error Resume Next\n")
+                        
                         fprintf(vbs_port "For Each objSheet In objWB.Sheets\n")
                         fprintf(vbs_port "    If Left(objSheet.Name, 5) = \"Sheet\" Then objSheet.Delete\n")
                         fprintf(vbs_port "Next\n")
                         fprintf(vbs_port "On Error GoTo 0\n")
+                        
                         fprintf(vbs_port "objWB.SaveAs xlsxFile, 51\n")
                         fprintf(vbs_port "objWB.Close False\n")
                         fprintf(vbs_port "objExcel.Quit\n")
-                        fprintf(vbs_port "If fso.FileExists(csvFile) Then fso.DeleteFile(csvFile)\n")
-                        close(vbs_port)
                         
-                        cmd_str = sprintf(nil "cmd /c cscript //nologo \"%s\\excel_compiler.vbs\" \"%s\"" work_dir file_prefix)
+                        close(vbs_port)
+                        cmd_str = sprintf(nil "cscript //nologo \"%s\\excel_compiler.vbs\" \"%s\"" work_dir file_prefix)
                         shell(cmd_str)
                         shell(sprintf(nil "cmd /c del \"%s\\excel_compiler.vbs\"" work_dir))
                         axlUIConfirm("Export Complete! Check the folder for your Master Excel Workbook.")
@@ -1547,8 +1666,10 @@ when(id == "R-2"
             )
         )
 		when(field == "close_btn"
-          when(fboundp('axlFormGetLoc) pcb_last_form_loc = axlFormGetLoc(frm))
-          pcb_last_active_tab = axlFormGetField(frm "category_tabs")
+          
+when(fboundp('axlFormGetLoc)
+  errset(pcb_last_form_loc = axlFormGetLoc(frm) t)
+)
           update_log_dir()
           save_pcb_state()
           axlFormClose(frm)
