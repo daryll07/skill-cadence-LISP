@@ -1,0 +1,28 @@
+📘 PCB Calculator v2.0 — Pro Version
+
+--- Trace Width Formulas ---
+IPC-D-275:
+  External: W = ((I / (0.0647 * T^0.4281))^(1/0.6732)) / (oz * 1.378)
+  Internal: W = ((I / (0.0150 * T^0.5453))^(1/0.7349)) / (oz * 1.378)
+
+IPC-2221:
+  Area = (I / (k * T^0.44))^(1/0.725)
+  W = Area / (oz * 1.378)
+  (External k=0.048 | Internal k=0.024)
+
+IPC-2152 (Conservative Approx):
+  k=0.0349 using IPC-2221 base equation structure.
+
+--- Via Current & Advanced Math Summaries ---
+• Ampacity: Uses the IPC-2221 thermal curve-fit baseline.
+• Exact Geometric Area: Uses the true cross-sectional area of a hollow cylinder [ A = π * (D - t) * t ] for highest accuracy.
+• Electrical Math: Calculates DC resistance using copper resistivity (1.724e-6 Ω·cm) and applies the copper temperature coefficient (0.00393) to calculate worst-case hot resistance.
+
+DISCLAIMER (Internal Use): This calculator is provided “AS IS” for informational purposes only.
+No warranties (express or implied) are made regarding accuracy, completeness, or fitness for a particular purpose.
+Results must be independently verified (and where appropriate reviewed by a qualified engineer) before design release,
+fabrication, or production use. The authors are not liable for any direct, indirect, incidental, or consequential damages
+arising from use or misuse of this tool.
+
+PCB TEAM © DJB
+
