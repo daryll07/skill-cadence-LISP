@@ -1,0 +1,167 @@
+/*
+* Script: copy_ref_to_etch_gui.il
+* Description: Copies the Reference Designator text of selected components
+*              to the Etch layer. Features a dynamically generated UI 
+*              built entirely within this single file.
+*/
+
+axlCmdRegister("copyref" 'copy_ref_gui_init)
+
+(defun copy_ref_gui_init ()
+  (prog (formFile myForm)
+    ;; 1. Generate the form definition to a temporary system file
+    formFile = _copy_ref_make_form()
+    
+    ;; 2. Load the form into Allegro memory
+    myForm = axlFormCreate( (gensym) formFile '("E" "OUTER") 'copy_ref_form_action t)
+    
+    ;; 3. Set the default radio button to Silkscreen
+    axlFormSetField(myForm "match_silk" t)
+    
+    ;; 4. Display the GUI
+    axlFormDisplay(myForm)
+    
+    ;; 5. Clean up - delete the temporary file from the hard drive instantly
+    (deleteFile formFile)
+  )
+)
+
+(defun _copy_ref_make_form ()
+  ;; Dynamically writes Allegro FORM syntax and returns the temp file path
+  (prog (port formName)
+    formName = axlTempFile()
+    port = outfile(formName)
+    fprintf(port "FILE_TYPE=FORM_DEFN VERSION=2\n")
+    fprintf(port "FORM\n")
+    fprintf(port "FIXED\n")
+    fprintf(port "PORT 36 12\n")
+    fprintf(port "HEADER \"Copy RefDes to Etch\"\n")
+    
+    fprintf(port "TILE\n")
+    fprintf(port "TEXT \"Select Text Block Source:\"\n")
+    fprintf(port "TLOC 2 1\n")
+    fprintf(port "ENDTEXT\n")
+    
+    ;; Using the same group name "match_group" turns checkboxes into radio buttons
+    fprintf(port "FIELD match_silk\n")
+    fprintf(port "FLOC 4 3\n")
+    fprintf(port "CHECKLIST \"Prioritize Silkscreen\" \"match_group\"\n")
+    fprintf(port "ENDFIELD\n")
+    
+    fprintf(port "FIELD match_assy\n")
+    fprintf(port "FLOC 4 5\n")
+    fprintf(port "CHECKLIST \"Prioritize Assembly\" \"match_group\"\n")
+    fprintf(port "ENDFIELD\n")
+    
+    fprintf(port "FIELD start_btn\n")
+    fprintf(port "FLOC 2 9\n")
+    fprintf(port "MENUBUTTON \"Select Components\" 15 3\n")
+    fprintf(port "ENDFIELD\n")
+    
+    fprintf(port "FIELD close_btn\n")
+    fprintf(port "FLOC 19 9\n")
+    fprintf(port "MENUBUTTON \"Close\" 15 3\n")
+    fprintf(port "ENDFIELD\n")
+    
+    fprintf(port "ENDTILE\n")
+    fprintf(port "ENDFORM\n")
+    close(port)
+    return(formName)
+  )
+)
+
+(defun copy_ref_form_action (myForm)
+  ;; Handles button clicks in the GUI
+  (case myForm->curField
+    ("start_btn"
+      (let (prioritize_silk)
+        ;; Check which radio button is active
+        prioritize_silk = axlFormGetField(myForm "match_silk")
+        
+        ;; Close form so user can select components in the workspace
+        axlFormClose(myForm)
+        
+        ;; Trigger the actual copy function with the user's preference
+        _copy_ref_execute(prioritize_silk)
+      )
+    )
+    ("close_btn"
+      axlFormClose(myForm)
+    )
+  )
+)
+
+(defun _copy_ref_execute (prioritize_silk)
+  ;; The core logic for copying the RefDes and attaching to the DB symbol
+  (prog (selected_syms sym_refdes target_layer ref_text orient new_text primary_target secondary_target)
+    
+    (if prioritize_silk then
+        primary_target = "SILKSCREEN"
+        secondary_target = "ASSEMBLY"
+    else
+        primary_target = "ASSEMBLY"
+        secondary_target = "SILKSCREEN"
+    )
+
+    axlClearSelSet()
+    axlSetFindFilter(?enabled '("noall" "symbols") ?onButtons '("noall" "symbols"))
+    axlPrompt("Select components. Right-click -> Done when finished.")
+
+    (while (axlSelect)
+      selected_syms = axlGetSelSet()
+      (foreach sym selected_syms
+        (when (equal sym->type "SYMBOL")
+          sym_refdes = sym->refdes
+          target_layer = (if sym->isMirrored "ETCH/BOTTOM" "ETCH/TOP")
+          ref_text = nil
+          
+          ;; FIRST PASS: Try to find the user's Primary target (Silkscreen or Assembly)
+          (foreach child sym->children
+            (when (and (equal child->objType "text") 
+                       (index child->layer "REF DES")
+                       (index child->layer primary_target))
+              ref_text = child
+            )
+          )
+
+          ;; SECOND PASS: Try Secondary target if primary is missing
+          (unless ref_text
+            (foreach child sym->children
+              (when (and (equal child->objType "text") 
+                         (index child->layer "REF DES")
+                         (index child->layer secondary_target))
+                ref_text = child
+              )
+            )
+          )
+          
+          ;; THIRD PASS: Fallback to any available RefDes text on the component
+          (unless ref_text
+            (foreach child sym->children
+              (when (and (equal child->objType "text") (index child->layer "REF DES"))
+                ref_text = child
+              )
+            )
+          )
+
+          (if ref_text then
+            ;; Clone properties and create Etch text bonded to the component
+            orient = make_axlTextOrientation(
+              ?textBlock ref_text->textBlock
+              ?rotation ref_text->rotation
+              ?mirrored ref_text->isMirrored
+              ?justify ref_text->justify
+            )
+            new_text = axlDBCreateText(sym_refdes ref_text->xy orient target_layer sym)
+          else
+            ;; Fallback if component has no RefDes text instances at all
+            orient = make_axlTextOrientation(?textBlock "1" ?rotation 0.0)
+            new_text = axlDBCreateText(sym_refdes sym->xy orient target_layer sym)
+          )
+        )
+      )
+    )
+    axlClearSelSet()
+    axlUIConfirm("RefDes copying complete.")
+  )
+)
